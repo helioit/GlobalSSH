@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<project name="Nattrav" default="buildNatTravJar" basedir="./">
+
+	<!-- settings for NatTrav -->
+	<property name="src.dir" value="src" /> 
+	<property name="lib.dir" value="libs" />
+	<property name="build.dir" value="classes" />
+	<property name="outputjar.name" value="nattrav.jar" />
+	<property name="javadoc.dir" value="javadoc" />
+	
+	<!-- settings for chatapp -->
+	<property name="chatapp.src.dir" value="chatapp" />
+	<property name="chatapp.build.dir" value="chatapp-classes" />
+	<property name="chatapp.manifest" value="chatapp/manifest_im.mf" />
+	<property name="chatapp.outputjar.name" value="chatapp.jar" />
+
+	<!-- classpath -->
+	<path id="project.classpath">
+		<pathelement path="${build.dir}" />
+		<pathelement path="${chatapp-src.dir}" />
+		<pathelement path="${lib.dir}/junit.jar" />
+		<pathelement path="${lib.dir}/ant-junit.jar" />
+	</path>
+
+	<!-- cleanup [delete directories] -->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${chatapp.build.dir}" />
+		<delete dir="${javadoc.dir}" />
+		<delete file="${outputjar.name}" />
+		<delete file="${chatapp.outputjar.name}" />
+	</target>
+  	
+	<!-- compile -->
+	<target name="compileNatTrav" depends="clean">
+		<mkdir dir="${build.dir}" />
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			classpathref="project.classpath"
+			includes="**/*.java"
+			deprecation="yes"
+			debuglevel="lines,vars,source"
+			debug="true">           
+		</javac>
+	</target>
+	
+	<!-- create jarfile -->
+	<target name="buildNatTravJar" depends="compileNatTrav">   
+		<jar destfile="${outputjar.name}">
+			<fileset dir="${build.dir}" includes="**/*.class"/>
+		</jar>
+	</target>
+
+	<!-- distributes the new jar files -->
+	<target name="distributeJars" depends="buildNatTravJar">
+		<exec executable="unshared/management/wput/uploadJars.bat" />
+	</target>
+	
+	<!-- create javadoc -->
+	<target name="javadoc">
+		<delete dir="${javadoc.dir}" />
+		<mkdir dir="${javadoc.dir}" />
+		<javadoc destdir="${javadoc.dir}"
+             classpathref="project.classpath"
+             windowtitle="NAT-Traversal Framework API"
+             use="true">
+			<fileset dir="${src.dir}">
+				<include name="de/*.java"/>
+				<include name="de/tud/**/*.java" />
+			</fileset>
+			<doctitle>NAT-Traversal Framework API</doctitle>
+			<header>NAT-Traversal Framework API</header>
+		</javadoc>
+	</target>
+	
+	<!-- compile -->
+	<target name="compileChatApp" depends="clean">
+		<mkdir dir="${chatapp.build.dir}" />
+		<javac srcdir="${src.dir};${chatapp.src.dir}"
+			destdir="${chatapp.build.dir}"
+			classpathref="project.classpath"
+			includes="**/*.java"
+			deprecation="yes"
+			debuglevel="lines,vars,source"
+			debug="true">           
+		</javac>
+	</target>
+	
+	<!-- create jarfile for chatapp-->
+	<target name="buildChatAppJar" depends="compileChatApp">   
+		<jar destfile="${chatapp.outputjar.name}" manifest="${chatapp.manifest}">
+			<fileset dir="${chatapp.build.dir}" includes="**/*.class"/>
+		</jar>
+	</target>
+
+	
+</project>
